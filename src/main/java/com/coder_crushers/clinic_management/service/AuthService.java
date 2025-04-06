@@ -25,7 +25,6 @@ public class AuthService {
        patient.setEmail(user.getEmail());
        patient.setName(user.getName());
        patient.setMobileNo(user.getMobileNo());
-       patient.setBirthDate(user.getBirthDate());
        patient.setRole(Role.PATIENT);
        patient.setPassword(passwordEncoder.encode(user.getPassword()));
 
