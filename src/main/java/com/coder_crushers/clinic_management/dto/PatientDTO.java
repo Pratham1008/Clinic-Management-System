@@ -13,9 +13,8 @@ public class PatientDTO {
     private String mobileNo;
     private LocalDate birthDate;
     private String imageUrl;
-    List<MedicalHistoryDTO> medicalHistories;
-    private Set<String> allergies;
-    private List<AppointmentDTO> appointments; // List of patient’s booked appointments
+
+
 
 
     public Long getId() {
@@ -65,30 +64,5 @@ public class PatientDTO {
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
-
-    public List<MedicalHistoryDTO> getMedicalHistories() {
-        return medicalHistories;
-    }
-
-    public void setMedicalHistories(List<MedicalHistoryDTO> medicalHistories) {
-        this.medicalHistories = medicalHistories;
-    }
-
-    public Set<String> getAllergies() {
-        return allergies;
-    }
-
-    public void setAllergies(Set<String> allergies) {
-        this.allergies = allergies;
-    }
-
-    public List<AppointmentDTO> getAppointments() {
-        return appointments;
-    }
-
-    public void setAppointments(List<AppointmentDTO> appointments) {
-        this.appointments = appointments;
-    }
-
 
 }

@@ -22,8 +22,8 @@ public class Patient extends User {
     private List<MedicalHistory> medicalHistories;
 
 
-    public Set<String> getAllergies() {
-        return allergies;
+    public List<String> getAllergies() {
+        return allergies.stream().toList();
     }
 
     public void setAllergies(Set<String> allergies) {

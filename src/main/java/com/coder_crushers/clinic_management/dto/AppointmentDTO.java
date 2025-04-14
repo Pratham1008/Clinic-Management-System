@@ -1,5 +1,7 @@
 package com.coder_crushers.clinic_management.dto;
 
+import com.coder_crushers.clinic_management.model.AppointmentStatus;
+
 import java.time.LocalDateTime;
 
 public class AppointmentDTO {
@@ -7,7 +9,7 @@ public class AppointmentDTO {
     private Long patientId;
     private Long doctorId;
     private LocalDateTime appointmentTime;
-    private String status; // Pending, Confirmed, Cancelled
+    private AppointmentStatus status; // Pending, Confirmed, Cancelled
 
 
     public Long getId() {
@@ -42,11 +44,11 @@ public class AppointmentDTO {
         this.appointmentTime = appointmentTime;
     }
 
-    public String getStatus() {
+    public AppointmentStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(AppointmentStatus status) {
         this.status = status;
     }
 }

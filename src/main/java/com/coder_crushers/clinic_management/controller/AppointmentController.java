@@ -1,10 +1,15 @@
 package com.coder_crushers.clinic_management.controller;
 
+import com.coder_crushers.clinic_management.dto.AppointmentDTO;
+import com.coder_crushers.clinic_management.dto.AppointmentRequest;
+import com.coder_crushers.clinic_management.exception.UserNotFoundException;
 import com.coder_crushers.clinic_management.model.Appointment;
 import com.coder_crushers.clinic_management.model.Patient;
+import com.coder_crushers.clinic_management.response.ApiResponse;
 import com.coder_crushers.clinic_management.service.AppointmentService;
 import com.coder_crushers.clinic_management.service.PatientService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +32,7 @@ public class AppointmentController {
 
     @PostMapping("/book")
     @PreAuthorize("hasRole('PATIENT')")
-    public ResponseEntity<String> bookAppointment(@RequestBody Appointment appointment) {
+    public ResponseEntity<String> bookAppointment(@RequestBody AppointmentRequest appointment) {
         String response = appointmentService.bookAppointment(appointment);
         return ResponseEntity.ok(response);
     }
@@ -61,9 +66,15 @@ public class AppointmentController {
 
     @GetMapping("/present")
     @PreAuthorize("hasRole('RECEPTIONIST')")
-    public ResponseEntity<List<Appointment>> getAppointmentsForPresentPatients() {
-        List<Appointment> appointments = appointmentService.getAppointmentsForPresentPatients();
-        return ResponseEntity.ok(appointments);
+    public ResponseEntity<ApiResponse> getAppointmentsForPresentPatients() {
+        try {
+            List<AppointmentDTO> appointments= appointmentService.getAppointmentsForPresentPatients();
+            return ResponseEntity.ok(new ApiResponse("success",appointments));
+
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse("data not found",null));
+        }
+
     }
 
     @GetMapping("/not-present")

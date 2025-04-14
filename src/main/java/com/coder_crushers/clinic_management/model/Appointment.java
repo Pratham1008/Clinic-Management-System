@@ -21,8 +21,6 @@ public class Appointment {
 
     private LocalDateTime appointmentTime; // User-selected slot
 
-    private int estimatedConsultationTime; // Time in minutes
-
     @Enumerated(EnumType.STRING)
     private AppointmentStatus status;
 
@@ -69,16 +67,8 @@ public class Appointment {
         this.doctor = doctor;
     }
 
-    public int getEstimatedConsultationTime() {
-        return estimatedConsultationTime;
-    }
-
-    public void setEstimatedConsultationTime(int estimatedConsultationTime) {
-        this.estimatedConsultationTime = estimatedConsultationTime;
-    }
-
-    public String getStatus() {
-        return status.toString();
+    public AppointmentStatus getStatus() {
+        return status;
     }
 
     public void setStatus(AppointmentStatus status) {
