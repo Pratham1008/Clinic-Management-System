@@ -49,4 +49,9 @@ public class PatientService {
         Patient patient=  patientRepo.findById(id).orElseThrow(()->new UsernameNotFoundException("user not found"));
         return  EntityToDTOMapper.toMedicalConditionDTO(patient);
     }
+
+    public PatientDTO getUserByEmail(String email) {
+        Patient patient = patientRepo.findByEmail(email);
+        return EntityToDTOMapper.toPatientDTO(patient);
+    }
 }

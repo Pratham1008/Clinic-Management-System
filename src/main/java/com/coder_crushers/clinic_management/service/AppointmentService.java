@@ -95,6 +95,18 @@ public class AppointmentService {
         }
     }
 
+<<<<<<< Updated upstream
+=======
+    private Appointment createAppointment(AppointmentRequest appointmentRequest) {
+        Appointment appointment = new Appointment();
+        Doctor doctor = doctorRepository.findById(2L).orElse(null);
+        Patient patient = patientRepo.findById(appointmentRequest.getPatientId()).orElse(null);
+        appointment.setPatient(patient);
+        appointment.setDoctor(doctor);
+        return appointment;
+    }
+
+>>>>>>> Stashed changes
     private boolean hasEnoughTimeBeforeClosing(LocalDateTime appointmentTime) {
         long remainingAppointments = appointmentQueue.size();
         long timeRemaining = CLINIC_CLOSE_TIME.toSecondOfDay() - appointmentTime.toLocalTime().toSecondOfDay();
