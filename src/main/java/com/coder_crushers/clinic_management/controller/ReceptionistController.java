@@ -1,9 +1,11 @@
 package com.coder_crushers.clinic_management.controller;
 
 import com.coder_crushers.clinic_management.dto.AppointmentDTO;
+import com.coder_crushers.clinic_management.dto.MedicalHistoryDTO;
 import com.coder_crushers.clinic_management.exception.UserNotFoundException;
 import com.coder_crushers.clinic_management.response.ApiResponse;
 import com.coder_crushers.clinic_management.service.AppointmentService;
+import com.coder_crushers.clinic_management.service.ReceptionistService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,10 +19,12 @@ import java.util.List;
 public class ReceptionistController {
 
     private final AppointmentService appointmentService;
+    private final ReceptionistService receptionistService;
 
     @Autowired
-    public ReceptionistController(AppointmentService appointmentService) {
+    public ReceptionistController(AppointmentService appointmentService, ReceptionistService receptionistService) {
         this.appointmentService = appointmentService;
+        this.receptionistService = receptionistService;
     }
 
     @PutMapping("/mark-present/{id}")
@@ -36,7 +40,7 @@ public class ReceptionistController {
         return ResponseEntity.ok(new ApiResponse("success",appointmentDTOList));
     }
 
-    @PutMapping("/mark-com/{id}")
+    @PutMapping("/mark-complete/{id}")
     public ResponseEntity<ApiResponse>markAsComplete(@PathVariable Long id){
         try{
             String str =appointmentService.markAppointmentAsCompleted(id);
@@ -64,4 +68,10 @@ public class ReceptionistController {
         List<AppointmentDTO> appointmentDTOList = appointmentService.getCompletedAppointmentsForDate(localDate);
         return ResponseEntity.ok(new ApiResponse("success",appointmentDTOList));
     }
+
+    public ResponseEntity<ApiResponse>addMedHist(@RequestBody MedicalHistoryDTO medicalHistoryDTO){
+        receptionistService.addMedHist(medicalHistoryDTO);
+        return ResponseEntity.ok(new ApiResponse("success",null));
+    }
+
 }
