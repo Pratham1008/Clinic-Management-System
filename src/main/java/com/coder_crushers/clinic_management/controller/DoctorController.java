@@ -51,7 +51,6 @@ public class DoctorController {
     @GetMapping("/med-cond/{id}")
     public ResponseEntity<ApiResponse> getPatientMedicalConditions(@PathVariable Long id)
     {
-
         MedicalCondition medicalCondition = patientService.getPatientMedicalConditions(id);
         return ResponseEntity.ok(new ApiResponse("success",null));
     }

@@ -1,5 +1,6 @@
 package com.coder_crushers.clinic_management.controller;
 
+import com.coder_crushers.clinic_management.dto.DoctorDTO;
 import com.coder_crushers.clinic_management.model.Doctor;
 import com.coder_crushers.clinic_management.model.Receptionist;
 import com.coder_crushers.clinic_management.response.ApiResponse;
@@ -28,7 +29,7 @@ public class AdminController {
     @PostMapping("/add")
     public ResponseEntity<ApiResponse> addDoctor(@RequestBody Doctor doctor) {
         adminService.addDoctor(doctor);
-        return ResponseEntity.ok(new ApiResponse("Doctor added successfully!",doctor));
+        return ResponseEntity.ok(new ApiResponse("Doctor added successfully!",null));
     }
 
     @PostMapping("/add-receptionist")
@@ -39,7 +40,7 @@ public class AdminController {
 
     @GetMapping("/list-doctors")
     public ResponseEntity<ApiResponse> listDoctors() {
-        List<Doctor> list = adminService.getAllDoctors();
+        List<DoctorDTO> list = adminService.getAllDoctors();
         if(!list.isEmpty())
         {
             return ResponseEntity.ok(new ApiResponse("found",list));

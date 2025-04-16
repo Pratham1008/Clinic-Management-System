@@ -54,4 +54,9 @@ public class PatientService {
         Patient patient = patientRepo.findByEmail(email);
         return EntityToDTOMapper.toPatientDTO(patient);
     }
+
+    public List<MedicalHistoryDTO> findByPatientId(Long id) {
+        List<MedicalHistory> medicalHistoryList = medicalHistoryRepository.findByPatientId(id);
+        return EntityToDTOMapper.toMedicalHistoryDTOList(medicalHistoryList);
+    }
 }

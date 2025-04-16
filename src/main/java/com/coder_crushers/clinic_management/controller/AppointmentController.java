@@ -30,19 +30,6 @@ public class AppointmentController {
         this.patientService = patientService;
     }
 
-    @PostMapping("/book")
-    @PreAuthorize("hasRole('PATIENT')")
-    public ResponseEntity<String> bookAppointment(@RequestBody AppointmentRequest appointment) {
-        String response = appointmentService.bookAppointment(appointment);
-        return ResponseEntity.ok(response);
-    }
-
-//    @GetMapping("/check-slot")
-//    public ResponseEntity<Boolean> isSlotAvailable(@RequestParam Long doctorId, @RequestParam LocalDateTime appointmentTime, @RequestParam int duration) {
-//        boolean available = appointmentService.isSlotAvailable(doctorId, appointmentTime, duration);
-//        return ResponseEntity.ok(available);
-//    }
-
     @PutMapping("/mark-present/{appointmentId}")
     @PreAuthorize("hasRole('RECEPTIONIST')")
     public ResponseEntity<String> markPatientPresent(@PathVariable Long appointmentId) {
@@ -50,19 +37,6 @@ public class AppointmentController {
         return ResponseEntity.ok("Patient marked as present.");
     }
 
-    @GetMapping("/next-patient")
-    @PreAuthorize("hasRole('DOCTOR')")
-    public ResponseEntity<Appointment> getNextPatient() {
-        Appointment appointment = appointmentService.getNextPatient();
-        return ResponseEntity.ok(appointment);
-    }
-
-    @GetMapping("/all")
-    @PreAuthorize("hasRole('RECEPTIONIST')")
-    public ResponseEntity<List<Appointment>> getAllAppointments() {
-        List<Appointment> appointments = appointmentService.getAllAppointments();
-        return ResponseEntity.ok(appointments);
-    }
 
     @GetMapping("/present")
     @PreAuthorize("hasRole('RECEPTIONIST')")
@@ -84,24 +58,5 @@ public class AppointmentController {
         return ResponseEntity.ok(appointments);
     }
 
-//    @GetMapping("/patients")
-//    @PreAuthorize("hasRole('RECEPTIONIST')")
-//    public ResponseEntity<List<Patient>> getAllPatients() {
-//        List<Patient> patients = patientService.getAllPatients();
-//        return ResponseEntity.ok(patients);
-//    }
-//
-//    @GetMapping("/patients/present")
-//    @PreAuthorize("hasRole('RECEPTIONIST')")
-//    public ResponseEntity<List<Patient>> getPresentPatients() {
-//        List<Patient> presentPatients = patientService.getPresentPatients();
-//        return ResponseEntity.ok(presentPatients);
-//    }
-//
-//    @GetMapping("/patients/not-present")
-//    @PreAuthorize("hasRole('RECEPTIONIST')")
-//    public ResponseEntity<List<Patient>> getNotPresentPatients() {
-//        List<Patient> notPresentPatients = patientService.getNotPresentPatients();
-//        return ResponseEntity.ok(notPresentPatients);
-//    }
+
 }

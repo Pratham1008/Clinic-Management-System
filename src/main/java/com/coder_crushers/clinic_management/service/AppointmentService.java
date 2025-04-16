@@ -6,15 +6,20 @@ import com.coder_crushers.clinic_management.exception.UserNotFoundException;
 import com.coder_crushers.clinic_management.mapper.EntityToDTOMapper;
 import com.coder_crushers.clinic_management.model.Appointment;
 import com.coder_crushers.clinic_management.model.AppointmentStatus;
+import com.coder_crushers.clinic_management.model.Doctor;
+import com.coder_crushers.clinic_management.model.Patient;
 import com.coder_crushers.clinic_management.repository.AppointmentRepository;
+import com.coder_crushers.clinic_management.repository.DoctorRepository;
+import com.coder_crushers.clinic_management.repository.PatientRepo;
+import com.coder_crushers.clinic_management.response.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.OptionalDouble;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -25,6 +30,9 @@ public class AppointmentService {
     private static final Logger logger = LoggerFactory.getLogger(AppointmentService.class);
 
     private final AppointmentRepository appointmentRepository;
+    private final DoctorRepository doctorRepository;
+    private final PatientRepo patientRepo;
+
     private final Lock lock = new ReentrantLock();
 
     private final ConcurrentLinkedQueue<Appointment> appointmentQueue = new ConcurrentLinkedQueue<>();
@@ -36,29 +44,31 @@ public class AppointmentService {
     private boolean canBookAppointments = true;
     private double averageConsultationTime = 15;
 
-    public AppointmentService(AppointmentRepository appointmentRepository) {
+    public AppointmentService(AppointmentRepository appointmentRepository, DoctorRepository doctorRepository, PatientRepo patientRepo) {
         this.appointmentRepository = appointmentRepository;
 
+        this.doctorRepository = doctorRepository;
+        this.patientRepo = patientRepo;
     }
 
-    public String bookAppointment(AppointmentRequest appointmentRequest) {
-        Appointment appointment = new Appointment();
+    public ApiResponse bookAppointment(AppointmentRequest appointmentRequest) {
+
         lock.lock();
         try {
             if (!canBookAppointments) {
                 logger.warn("Appointment booking is disabled by the doctor.");
-                return "Booking is closed as per the doctor's request.";
+                return new ApiResponse("Booking is closed as per the doctor's request.",null);
             }
 
             LocalTime appointmentTime = appointmentRequest.getAppointmentBookingTime().toLocalTime();
             if (appointmentTime.isBefore(CLINIC_OPEN_TIME) || appointmentTime.isAfter(CLINIC_CLOSE_TIME)) {
                 logger.warn("Attempted booking outside clinic hours: {}", appointmentTime);
-                return "Clinic is only open from 9 AM to 9 PM.";
+                return new ApiResponse("Clinic is only open from 9 AM to 9 PM.",null);
             }
 
             if (!hasEnoughTimeBeforeClosing(appointmentRequest.getAppointmentBookingTime())) {
                 logger.warn("Insufficient time to book before clinic closes.");
-                return "Not enough time left before clinic closing.";
+                return new ApiResponse("Not enough time left before clinic closing.",null);
             }
             // Determine the latest appointment time in the queue
             LocalDateTime lastAppointmentTime = appointmentQueue.stream()
@@ -74,39 +84,39 @@ public class AppointmentService {
             // Ensure it’s not beyond clinic closing
             if (calculatedAppointmentTime.toLocalTime().isAfter(CLINIC_CLOSE_TIME)) {
                 logger.warn("Insufficient time to book before clinic closes.");
-                return "Not enough time left before clinic closing.";
+                return new ApiResponse("Not enough time left before clinic closing.",null);
             }
 
             // Populate and save appointment
+            Appointment appointment = createAppointment(appointmentRequest);
             appointment.setStatus(AppointmentStatus.BOOKED);
             appointment.setAppointmentTime(calculatedAppointmentTime);
 
             appointmentRepository.save(appointment);
             appointmentQueue.add(appointment);
             logger.info("Appointment booked successfully: {}", appointment);
-            return "Appointment booked successfully!";
+            return new ApiResponse("Appointment booked successfully!",EntityToDTOMapper.toAppointmentDTO(appointment));
 
 
         } catch (Exception e) {
             logger.error("Error while booking appointment: {}", e.getMessage());
-            return "An error occurred while booking the appointment.";
+            return new ApiResponse("An error occurred while booking the appointment.",null);
         } finally {
             lock.unlock();
         }
     }
 
-<<<<<<< Updated upstream
-=======
+
     private Appointment createAppointment(AppointmentRequest appointmentRequest) {
         Appointment appointment = new Appointment();
-        Doctor doctor = doctorRepository.findById(2L).orElse(null);
+        Doctor doctor = doctorRepository.findById(3L).orElse(null);
         Patient patient = patientRepo.findById(appointmentRequest.getPatientId()).orElse(null);
         appointment.setPatient(patient);
         appointment.setDoctor(doctor);
         return appointment;
     }
 
->>>>>>> Stashed changes
+
     private boolean hasEnoughTimeBeforeClosing(LocalDateTime appointmentTime) {
         long remainingAppointments = appointmentQueue.size();
         long timeRemaining = CLINIC_CLOSE_TIME.toSecondOfDay() - appointmentTime.toLocalTime().toSecondOfDay();
@@ -129,18 +139,15 @@ public class AppointmentService {
         }
     }
 
-    public Appointment getNextPatient() {
-        return clinicQueue.poll();
-    }
 
     public void setCanBookAppointments(boolean status) {
         this.canBookAppointments = status;
         logger.info("Appointment booking status updated: {}", status);
     }
 
-    public List<Appointment> getAllAppointments() {
-        return appointmentRepository.findByStatusNot(AppointmentStatus.COMPLETED);
-    }
+//    public List<Appointment> getAllAppointments() {
+//        return appointmentRepository.findByStatusNot(AppointmentStatus.COMPLETED);
+//    }
 
     public List<AppointmentDTO> getAppointmentsForPresentPatients() throws UserNotFoundException {
         List<Appointment> appointments = appointmentRepository.findByStatus(AppointmentStatus.PRESENT);
@@ -210,10 +217,25 @@ public class AppointmentService {
     }
 
 
+    public List<AppointmentDTO> getAppointmentsByDate(LocalDate date) {
+        LocalDateTime startOfDay = date.atStartOfDay();         // e.g. 2025-04-16T00:00
+        LocalDateTime endOfDay = date.atTime(23, 59, 59);       // e.g. 2025-04-16T23:59:59
+
+        List<Appointment>appointments= appointmentRepository.findByAppointmentTimeBetween(startOfDay, endOfDay);
+        return EntityToDTOMapper.appointmentDTOList(appointments);
+    }
 
 
 
+    public List<AppointmentDTO> getCompletedAppointmentsForDate(LocalDate date) {
+        // Convert LocalDate to LocalDateTime (start of the day and end of the day)
+        LocalDateTime startOfDay = date.atStartOfDay();  // e.g. 2025-04-16T00:00
+        LocalDateTime endOfDay = date.atTime(23, 59, 59, 999999999);  // e.g. 2025-04-16T23:59:59.999999999
 
+        // Query for appointments with status "COMPLETED" and within the range of the given day
+        List<Appointment>appointments= appointmentRepository.findByStatusAndAppointmentTimeBetween(AppointmentStatus.COMPLETED, startOfDay, endOfDay);
+        return  EntityToDTOMapper.appointmentDTOList(appointments);
+    }
 
 
 

@@ -7,7 +7,6 @@ import java.time.LocalDate;
 
 
 @Entity
-@Table(name = "users")
 @Inheritance(strategy = InheritanceType.JOINED) // Allows table inheritance
 public abstract class User {
 

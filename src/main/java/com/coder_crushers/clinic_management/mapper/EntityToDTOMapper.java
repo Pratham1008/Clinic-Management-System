@@ -19,6 +19,10 @@ public class EntityToDTOMapper {
         return dto;
     }
 
+    public static List<DoctorDTO> doctorDTOList(List<Doctor>doctorList)
+    {
+        return doctorList.stream().map(EntityToDTOMapper::toDoctorDTO).collect(Collectors.toList());
+    }
 
     public static DoctorDTO toDoctorDTO(Doctor doctor) {
         DoctorDTO dto = new DoctorDTO();
