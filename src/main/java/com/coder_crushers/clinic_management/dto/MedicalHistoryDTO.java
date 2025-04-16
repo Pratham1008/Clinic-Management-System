@@ -4,11 +4,19 @@ package com.coder_crushers.clinic_management.dto;
 import java.time.LocalDate;
 
 public class MedicalHistoryDTO {
+    private Long patientID;
     private Long id;
     private LocalDate date;
     private String diagnosis;
     private String prescribedMedication;
 
+    public Long getPatientID() {
+        return patientID;
+    }
+
+    public void setPatientID(Long patientID) {
+        this.patientID = patientID;
+    }
 
     public Long getId() {
         return id;

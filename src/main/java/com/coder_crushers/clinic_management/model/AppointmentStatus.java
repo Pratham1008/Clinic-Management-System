@@ -5,5 +5,5 @@ public enum AppointmentStatus {
     BOOKED, // Patient has scheduled an appointment
     PRESENT, // Patient has arrived at the clinic
     CHECKED,
-    CANCELED,
+    CANCELLED,
 }

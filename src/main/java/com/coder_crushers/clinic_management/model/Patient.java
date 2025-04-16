@@ -1,5 +1,6 @@
 package com.coder_crushers.clinic_management.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 
@@ -15,15 +16,18 @@ public class Patient extends User {
     @ElementCollection
     private Set<String> otherConditions;  // Example: ["Asthma", "Hypertension"]
 
+
+    @JsonIgnore
     @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Appointment> appointments;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MedicalHistory> medicalHistories;
 
 
-    public Set<String> getAllergies() {
-        return allergies;
+    public List<String> getAllergies() {
+        return allergies.stream().toList();
     }
 
     public void setAllergies(Set<String> allergies) {

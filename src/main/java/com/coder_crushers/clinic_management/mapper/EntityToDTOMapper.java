@@ -3,6 +3,7 @@ package com.coder_crushers.clinic_management.mapper;
 import com.coder_crushers.clinic_management.dto.*;
 import com.coder_crushers.clinic_management.model.*;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class EntityToDTOMapper {
@@ -15,25 +16,13 @@ public class EntityToDTOMapper {
         dto.setMobileNo(patient.getMobileNo());
         dto.setBirthDate(patient.getBirthDate());
         dto.setImageUrl(patient.getImageUrl());
-
-        // Convert list of MedicalHistory entities to DTOs
-        dto.setMedicalHistories(
-                patient.getMedicalHistories().stream()
-                        .map(EntityToDTOMapper::toMedicalHistoryDTO)
-                        .collect(Collectors.toList())
-        );
-
-        // Convert list of Appointments to AppointmentDTOs
-        dto.setAppointments(
-                patient.getAppointments().stream()
-                        .map(EntityToDTOMapper::toAppointmentDTO)
-                        .collect(Collectors.toList())
-        );
-
-        dto.setAllergies(patient.getAllergies());
         return dto;
     }
 
+    public static List<DoctorDTO> doctorDTOList(List<Doctor>doctorList)
+    {
+        return doctorList.stream().map(EntityToDTOMapper::toDoctorDTO).collect(Collectors.toList());
+    }
 
     public static DoctorDTO toDoctorDTO(Doctor doctor) {
         DoctorDTO dto = new DoctorDTO();
@@ -54,6 +43,13 @@ public class EntityToDTOMapper {
         return dto;
     }
 
+
+    public static List<AppointmentDTO> appointmentDTOList(List<Appointment> appointmentList)
+    {
+        return appointmentList.stream().map(EntityToDTOMapper::toAppointmentDTO).collect(Collectors.toList());
+    }
+
+
     public static AppointmentDTO toAppointmentDTO(Appointment appointment) {
         AppointmentDTO dto = new AppointmentDTO();
         dto.setId(appointment.getId());
@@ -64,6 +60,13 @@ public class EntityToDTOMapper {
         return dto;
     }
 
+
+    public static List<MedicalHistoryDTO> toMedicalHistoryDTOList(List<MedicalHistory>medicalHistoryList)
+    {
+        return medicalHistoryList.stream().map(EntityToDTOMapper::toMedicalHistoryDTO).collect(Collectors.toList());
+    }
+
+
     public static MedicalHistoryDTO toMedicalHistoryDTO(MedicalHistory history) {
         MedicalHistoryDTO dto = new MedicalHistoryDTO();
         dto.setId(history.getId());
@@ -71,5 +74,12 @@ public class EntityToDTOMapper {
         dto.setDiagnosis(history.getDiagnosis());
         dto.setPrescribedMedication(history.getTreatment());
         return dto;
+    }
+
+    public static MedicalCondition toMedicalConditionDTO(Patient patient)
+    {
+        MedicalCondition medicalCondition=new MedicalCondition();
+        medicalCondition.setAllergies(patient.getAllergies());
+        return medicalCondition;
     }
 }

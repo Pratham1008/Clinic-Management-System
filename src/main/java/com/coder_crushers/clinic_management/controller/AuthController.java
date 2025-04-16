@@ -2,9 +2,11 @@ package com.coder_crushers.clinic_management.controller;
 
 import com.coder_crushers.clinic_management.dto.AuthRequest;
 import com.coder_crushers.clinic_management.dto.AuthResponse;
+import com.coder_crushers.clinic_management.dto.PatientDTO;
 import com.coder_crushers.clinic_management.model.Patient;
 import com.coder_crushers.clinic_management.response.ApiResponse;
 import com.coder_crushers.clinic_management.service.AuthService;
+import com.coder_crushers.clinic_management.service.PatientService;
 import com.coder_crushers.clinic_management.util.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,12 +25,14 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final AuthService authService;
     private final JwtService jwtService;
+    private final PatientService patientService;
 
     @Autowired
-    public AuthController(AuthenticationManager authenticationManager, AuthService authService, JwtService jwtService) {
+    public AuthController(AuthenticationManager authenticationManager, AuthService authService, JwtService jwtService, PatientService patientService) {
         this.authenticationManager = authenticationManager;
         this.authService = authService;
         this.jwtService = jwtService;
+        this.patientService = patientService;
     }
 
     @PostMapping("/register")
@@ -39,7 +43,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> auth(@RequestBody AuthRequest authRequest)
+    public ResponseEntity<ApiResponse> auth(@RequestBody AuthRequest authRequest)
     {
         try {
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getEmail(),authRequest.getPassword()));
@@ -47,14 +51,15 @@ public class AuthController {
             if(authentication.isAuthenticated())
             {
                 String token = jwtService.generateToken(authRequest.getEmail());
-                return ResponseEntity.ok(new AuthResponse(token));
+                PatientDTO patientDTO = patientService.getUserByEmail(authRequest.getEmail());
+                return ResponseEntity.ok(new ApiResponse(token,patientDTO));
             }
         }
         catch (Exception e)
         {
             System.out.println(e.getMessage());
         }
-        return ResponseEntity.ok(new AuthResponse("fail to authenticate"));
+        return ResponseEntity.ok(new ApiResponse("fail to authenticate",null));
     }
 
 }
