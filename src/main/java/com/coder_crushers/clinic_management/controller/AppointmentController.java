@@ -30,26 +30,26 @@ public class AppointmentController {
         this.patientService = patientService;
     }
 
-    @PutMapping("/mark-present/{appointmentId}")
-    @PreAuthorize("hasRole('RECEPTIONIST')")
-    public ResponseEntity<String> markPatientPresent(@PathVariable Long appointmentId) {
-        appointmentService.markPatientPresent(appointmentId);
-        return ResponseEntity.ok("Patient marked as present.");
-    }
+//    @PutMapping("/mark-present/{appointmentId}")
+//    @PreAuthorize("hasRole('RECEPTIONIST')")
+//    public ResponseEntity<String> markPatientPresent(@PathVariable Long appointmentId) {
+//        appointmentService.markPatientPresent(appointmentId);
+//        return ResponseEntity.ok("Patient marked as present.");
+//    }
 
 
-    @GetMapping("/present")
-    @PreAuthorize("hasRole('RECEPTIONIST')")
-    public ResponseEntity<ApiResponse> getAppointmentsForPresentPatients() {
-        try {
-            List<AppointmentDTO> appointments= appointmentService.getAppointmentsForPresentPatients();
-            return ResponseEntity.ok(new ApiResponse("success",appointments));
-
-        } catch (UserNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse("data not found",null));
-        }
-
-    }
+//    @GetMapping("/present")
+//    @PreAuthorize("hasRole('RECEPTIONIST')")
+//    public ResponseEntity<ApiResponse> getAppointmentsForPresentPatients() {
+//        try {
+//            List<AppointmentDTO> appointments= appointmentService.getAppointmentsForPresentPatients();
+//            return ResponseEntity.ok(new ApiResponse("success",appointments));
+//
+//        } catch (UserNotFoundException e) {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse("data not found",null));
+//        }
+//
+//    }
 
     @GetMapping("/not-present")
     @PreAuthorize("hasRole('RECEPTIONIST')")

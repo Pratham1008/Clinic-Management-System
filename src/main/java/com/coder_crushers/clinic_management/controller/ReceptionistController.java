@@ -34,7 +34,7 @@ public class ReceptionistController {
     }
 
     @GetMapping("/appointment-date")
-    public ResponseEntity<ApiResponse>getAllAppointmentByDate(@RequestBody LocalDate localDate)
+    public ResponseEntity<ApiResponse>getAllAppointmentByDate(@RequestParam LocalDate localDate)
     {
         List<AppointmentDTO> appointmentDTOList = appointmentService.getAppointmentsByDate(localDate);
         return ResponseEntity.ok(new ApiResponse("success",appointmentDTOList));
@@ -63,7 +63,7 @@ public class ReceptionistController {
     }
 
     @GetMapping("/date-comp/appointment")
-    public ResponseEntity<ApiResponse>getCompletedForDate(@RequestBody LocalDate localDate)
+    public ResponseEntity<ApiResponse>getCompletedForDate(@RequestParam LocalDate localDate)
     {
         List<AppointmentDTO> appointmentDTOList = appointmentService.getCompletedAppointmentsForDate(localDate);
         return ResponseEntity.ok(new ApiResponse("success",appointmentDTOList));
