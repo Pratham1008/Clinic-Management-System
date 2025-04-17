@@ -16,9 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.*;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.Lock;
@@ -40,54 +38,54 @@ public class AppointmentService {
 
     private static final LocalTime CLINIC_OPEN_TIME = LocalTime.of(9, 0);
     private static final LocalTime CLINIC_CLOSE_TIME = LocalTime.of(21, 0);
+    private static final ZoneId ASIA_KOLKATA_ZONE = ZoneId.of("Asia/Kolkata"); // ✅ Timezone
 
     private boolean canBookAppointments = true;
     private double averageConsultationTime = 15;
 
     public AppointmentService(AppointmentRepository appointmentRepository, DoctorRepository doctorRepository, PatientRepo patientRepo) {
         this.appointmentRepository = appointmentRepository;
-
         this.doctorRepository = doctorRepository;
         this.patientRepo = patientRepo;
     }
 
     public ApiResponse bookAppointment(AppointmentRequest appointmentRequest) {
-
         lock.lock();
         try {
             if (!canBookAppointments) {
                 logger.warn("Appointment booking is disabled by the doctor.");
-                return new ApiResponse("Booking is closed as per the doctor's request.",null);
+                return new ApiResponse("Booking is closed as per the doctor's request.", null);
             }
 
-            LocalTime appointmentTime = appointmentRequest.getAppointmentBookingTime().toLocalTime();
+            LocalDateTime requestTime = appointmentRequest.getAppointmentBookingTime();
+            ZonedDateTime appointmentBookingZoned = requestTime.atZone(ASIA_KOLKATA_ZONE);
+            LocalTime appointmentTime = appointmentBookingZoned.toLocalTime();
+
             if (appointmentTime.isBefore(CLINIC_OPEN_TIME) || appointmentTime.isAfter(CLINIC_CLOSE_TIME)) {
                 logger.warn("Attempted booking outside clinic hours: {}", appointmentTime);
-                return new ApiResponse("Clinic is only open from 9 AM to 9 PM.",null);
+                return new ApiResponse("Clinic is only open from 9 AM to 9 PM.", null);
             }
 
-            if (!hasEnoughTimeBeforeClosing(appointmentRequest.getAppointmentBookingTime())) {
+            if (!hasEnoughTimeBeforeClosing(appointmentBookingZoned.toLocalDateTime())) {
                 logger.warn("Insufficient time to book before clinic closes.");
-                return new ApiResponse("Not enough time left before clinic closing.",null);
+                return new ApiResponse("Not enough time left before clinic closing.", null);
             }
-            // Determine the latest appointment time in the queue
+
+            LocalDateTime nowInKolkata = ZonedDateTime.now(ASIA_KOLKATA_ZONE).toLocalDateTime();
             LocalDateTime lastAppointmentTime = appointmentQueue.stream()
                     .map(Appointment::getAppointmentTime)
                     .max(LocalDateTime::compareTo)
-                    .orElse(LocalDateTime.of(appointmentRequest.getAppointmentBookingTime().toLocalDate(), CLINIC_OPEN_TIME));
+                    .orElse(LocalDateTime.of(appointmentBookingZoned.toLocalDate(), CLINIC_OPEN_TIME));
 
-            // Calculate next available slot
-            LocalDateTime calculatedAppointmentTime = lastAppointmentTime.isAfter(LocalDateTime.now())
+            LocalDateTime calculatedAppointmentTime = lastAppointmentTime.isAfter(nowInKolkata)
                     ? lastAppointmentTime.plusMinutes((long) averageConsultationTime)
-                    : LocalDateTime.now().plusMinutes((long) averageConsultationTime);
+                    : nowInKolkata.plusMinutes((long) averageConsultationTime);
 
-            // Ensure it’s not beyond clinic closing
             if (calculatedAppointmentTime.toLocalTime().isAfter(CLINIC_CLOSE_TIME)) {
                 logger.warn("Insufficient time to book before clinic closes.");
-                return new ApiResponse("Not enough time left before clinic closing.",null);
+                return new ApiResponse("Not enough time left before clinic closing.", null);
             }
 
-            // Populate and save appointment
             Appointment appointment = createAppointment(appointmentRequest);
             appointment.setStatus(AppointmentStatus.BOOKED);
             appointment.setAppointmentTime(calculatedAppointmentTime);
@@ -95,17 +93,16 @@ public class AppointmentService {
             appointmentRepository.save(appointment);
             appointmentQueue.add(appointment);
             logger.info("Appointment booked successfully: {}", appointment);
-            return new ApiResponse("Appointment booked successfully!",EntityToDTOMapper.toAppointmentDTO(appointment));
 
+            return new ApiResponse("Appointment booked successfully!", EntityToDTOMapper.toAppointmentDTO(appointment));
 
         } catch (Exception e) {
             logger.error("Error while booking appointment: {}", e.getMessage());
-            return new ApiResponse("An error occurred while booking the appointment.",null);
+            return new ApiResponse("An error occurred while booking the appointment.", null);
         } finally {
             lock.unlock();
         }
     }
-
 
     private Appointment createAppointment(AppointmentRequest appointmentRequest) {
         Appointment appointment = new Appointment();
@@ -115,7 +112,6 @@ public class AppointmentService {
         appointment.setDoctor(doctor);
         return appointment;
     }
-
 
     private boolean hasEnoughTimeBeforeClosing(LocalDateTime appointmentTime) {
         long remainingAppointments = appointmentQueue.size();
@@ -139,29 +135,21 @@ public class AppointmentService {
         }
     }
 
-
     public void setCanBookAppointments(boolean status) {
         this.canBookAppointments = status;
         logger.info("Appointment booking status updated: {}", status);
     }
 
-//    public List<Appointment> getAllAppointments() {
-//        return appointmentRepository.findByStatusNot(AppointmentStatus.COMPLETED);
-//    }
-
     public List<AppointmentDTO> getAppointmentsForPresentPatients() throws UserNotFoundException {
         List<Appointment> appointments = appointmentRepository.findByStatus(AppointmentStatus.PRESENT);
-        if(appointments.isEmpty())
+        if (appointments.isEmpty())
             throw new UserNotFoundException("No patient is present in hospital");
-
         return EntityToDTOMapper.appointmentDTOList(appointments);
-
     }
 
-    public List<Appointment> getAppointmentsForNotPresentPatients(){
-       return appointmentRepository.findByStatusNot(AppointmentStatus.PRESENT);
+    public List<Appointment> getAppointmentsForNotPresentPatients() {
+        return appointmentRepository.findByStatusNot(AppointmentStatus.PRESENT);
     }
-
 
     public String cancelAppointment(Long id) {
         lock.lock();
@@ -169,17 +157,14 @@ public class AppointmentService {
             Appointment appointment = appointmentRepository.findById(id)
                     .orElseThrow(() -> new RuntimeException("Appointment not found"));
 
-            // Remove from both queues
             appointmentQueue.removeIf(a -> a.getId().equals(id));
             clinicQueue.removeIf(a -> a.getId().equals(id));
 
-            // Update status
             appointment.setStatus(AppointmentStatus.CANCELLED);
             appointmentRepository.save(appointment);
 
             logger.info("Appointment with ID {} cancelled successfully.", id);
             return "Appointment cancelled successfully.";
-
         } catch (Exception e) {
             logger.error("Error cancelling appointment: {}", e.getMessage());
             return "An error occurred while cancelling the appointment.";
@@ -202,8 +187,7 @@ public class AppointmentService {
             appointment.setStatus(AppointmentStatus.COMPLETED);
             appointmentRepository.save(appointment);
 
-            // Remove from clinic queue if still present
-            appointmentQueue.removeIf(a->a.getId().equals(appointmentId));
+            appointmentQueue.removeIf(a -> a.getId().equals(appointmentId));
             clinicQueue.removeIf(a -> a.getId().equals(appointmentId));
 
             logger.info("Appointment ID {} marked as completed.", appointmentId);
@@ -216,58 +200,24 @@ public class AppointmentService {
         }
     }
 
-
     public List<AppointmentDTO> getAppointmentsByDate(LocalDate date) {
-        LocalDateTime startOfDay = date.atStartOfDay();         // e.g. 2025-04-16T00:00
-        LocalDateTime endOfDay = date.atTime(23, 59, 59);       // e.g. 2025-04-16T23:59:59
+        ZonedDateTime zonedStart = date.atStartOfDay(ASIA_KOLKATA_ZONE);
+        ZonedDateTime zonedEnd = date.atTime(23, 59, 59).atZone(ASIA_KOLKATA_ZONE);
 
-        List<Appointment>appointments= appointmentRepository.findByAppointmentTimeBetween(startOfDay, endOfDay);
+        List<Appointment> appointments = appointmentRepository.findByAppointmentTimeBetween(
+                zonedStart.toLocalDateTime(), zonedEnd.toLocalDateTime());
         return EntityToDTOMapper.appointmentDTOList(appointments);
     }
 
-
-
     public List<AppointmentDTO> getCompletedAppointmentsForDate(LocalDate date) {
-        // Convert LocalDate to LocalDateTime (start of the day and end of the day)
-        LocalDateTime startOfDay = date.atStartOfDay();  // e.g. 2025-04-16T00:00
-        LocalDateTime endOfDay = date.atTime(23, 59, 59, 999999999);  // e.g. 2025-04-16T23:59:59.999999999
+        ZonedDateTime zonedStart = date.atStartOfDay(ASIA_KOLKATA_ZONE);
+        ZonedDateTime zonedEnd = date.atTime(23, 59, 59, 999_999_999).atZone(ASIA_KOLKATA_ZONE);
 
-        // Query for appointments with status "COMPLETED" and within the range of the given day
-        List<Appointment>appointments= appointmentRepository.findByStatusAndAppointmentTimeBetween(AppointmentStatus.COMPLETED, startOfDay, endOfDay);
-        return  EntityToDTOMapper.appointmentDTOList(appointments);
+        List<Appointment> appointments = appointmentRepository.findByStatusAndAppointmentTimeBetween(
+                AppointmentStatus.COMPLETED,
+                zonedStart.toLocalDateTime(),
+                zonedEnd.toLocalDateTime()
+        );
+        return EntityToDTOMapper.appointmentDTOList(appointments);
     }
-
-
-
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
