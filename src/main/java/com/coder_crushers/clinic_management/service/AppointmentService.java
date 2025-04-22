@@ -41,7 +41,7 @@ public class AppointmentService {
     private static final ZoneId ASIA_KOLKATA_ZONE = ZoneId.of("Asia/Kolkata"); // ✅ Timezone
 
     private boolean canBookAppointments = true;
-    private double averageConsultationTime = 15;
+    private final double averageConsultationTime = 15;
 
     public AppointmentService(AppointmentRepository appointmentRepository, DoctorRepository doctorRepository, PatientRepo patientRepo) {
         this.appointmentRepository = appointmentRepository;
@@ -93,6 +93,11 @@ public class AppointmentService {
             appointmentRepository.save(appointment);
             appointmentQueue.add(appointment);
             logger.info("Appointment booked successfully: {}", appointment);
+
+            NotificationService notificationService = new NotificationService();
+            Patient patient = patientRepo.findById(appointmentRequest.getPatientId()).orElse(null);
+            assert patient != null;
+            notificationService.sendNotification("Appointment Booked","Appontment Time is "+ calculatedAppointmentTime,patient.getFcmToken());
 
             return new ApiResponse("Appointment booked successfully!", EntityToDTOMapper.toAppointmentDTO(appointment));
 

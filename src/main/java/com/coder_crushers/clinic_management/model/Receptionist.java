@@ -4,5 +4,5 @@ import jakarta.persistence.Entity;
 
 @Entity
 public class Receptionist extends User {
-    // Additional receptionist-specific fields can be added
+
 }

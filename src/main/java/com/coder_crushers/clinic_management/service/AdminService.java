@@ -32,7 +32,6 @@ public class AdminService {
 
 
     public void addDoctor(Doctor doctor) {
-        doctor.setPassword(passwordEncoder.encode(doctor.getPassword()));
         doctor.setRole(Role.DOCTOR);
         doctorRepository.save(doctor);
     }

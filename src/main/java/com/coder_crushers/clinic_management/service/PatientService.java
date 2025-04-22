@@ -33,9 +33,8 @@ public class PatientService {
 
     }
 
-
-    public PatientDTO getUserById(long id) {
-        Patient patient=  patientRepo.findById(id).orElseThrow(()->new UsernameNotFoundException("user not found"));
+    public PatientDTO getUserById(String uid) {
+        Patient patient=  patientRepo.findByFirebaseUid(uid);
         return  EntityToDTOMapper.toPatientDTO(patient);
     }
 

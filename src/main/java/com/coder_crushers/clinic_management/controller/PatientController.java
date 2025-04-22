@@ -3,7 +3,6 @@ package com.coder_crushers.clinic_management.controller;
 import com.coder_crushers.clinic_management.dto.AppointmentRequest;
 import com.coder_crushers.clinic_management.dto.MedicalHistoryDTO;
 import com.coder_crushers.clinic_management.dto.PatientDTO;
-import com.coder_crushers.clinic_management.model.Appointment;
 import com.coder_crushers.clinic_management.repository.MedicalHistoryRepository;
 import com.coder_crushers.clinic_management.response.ApiResponse;
 import com.coder_crushers.clinic_management.service.AppointmentService;
@@ -21,24 +20,22 @@ public class PatientController {
 
     private final PatientService patientService;
     private final AppointmentService appointmentService;
-    private final MedicalHistoryRepository medicalHistoryRepository;
 
     @Autowired
     public PatientController(PatientService patientService, AppointmentService appointmentService, MedicalHistoryRepository medicalHistoryRepository) {
         this.patientService = patientService;
         this.appointmentService = appointmentService;
-        this.medicalHistoryRepository = medicalHistoryRepository;
     }
 
-    @GetMapping("/id/{id}")
-    public ResponseEntity<ApiResponse>getPatientById(@PathVariable long id)
+    @GetMapping("/id/{uid}")
+    public ResponseEntity<ApiResponse>getPatientById(@PathVariable String uid)
     {
         try {
-            PatientDTO patientDTO = patientService.getUserById(id);
+            PatientDTO patientDTO = patientService.getUserById(uid);
             return ResponseEntity.ok(new ApiResponse("user found",patientDTO));
         }catch (Exception e)
         {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(e.getMessage(),null));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse("Data not found",null));
         }
     }
 

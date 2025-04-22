@@ -65,11 +65,5 @@ public class AdminController {
         return ResponseEntity.ok(new ApiResponse("doctor ",doctor));
     }
 
-    @GetMapping("/csrf")
-     public CsrfToken getCsrf(HttpServletRequest http )
-    {
-        return (CsrfToken) http.getAttribute("_csrf");
-    }
-
 
 }
