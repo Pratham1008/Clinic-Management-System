@@ -5,10 +5,8 @@ import com.coder_crushers.clinic_management.model.Doctor;
 import com.coder_crushers.clinic_management.model.Receptionist;
 import com.coder_crushers.clinic_management.response.ApiResponse;
 import com.coder_crushers.clinic_management.service.AdminService;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 
 

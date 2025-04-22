@@ -3,7 +3,6 @@ package com.coder_crushers.clinic_management.controller;
 import com.coder_crushers.clinic_management.dto.AppointmentRequest;
 import com.coder_crushers.clinic_management.dto.MedicalHistoryDTO;
 import com.coder_crushers.clinic_management.dto.PatientDTO;
-import com.coder_crushers.clinic_management.repository.MedicalHistoryRepository;
 import com.coder_crushers.clinic_management.response.ApiResponse;
 import com.coder_crushers.clinic_management.service.AppointmentService;
 import com.coder_crushers.clinic_management.service.PatientService;
@@ -22,7 +21,7 @@ public class PatientController {
     private final AppointmentService appointmentService;
 
     @Autowired
-    public PatientController(PatientService patientService, AppointmentService appointmentService, MedicalHistoryRepository medicalHistoryRepository) {
+    public PatientController(PatientService patientService, AppointmentService appointmentService) {
         this.patientService = patientService;
         this.appointmentService = appointmentService;
     }

@@ -3,16 +3,12 @@ package com.coder_crushers.clinic_management.service;
 import com.coder_crushers.clinic_management.dto.MedicalCondition;
 import com.coder_crushers.clinic_management.dto.MedicalHistoryDTO;
 import com.coder_crushers.clinic_management.dto.PatientDTO;
-import com.coder_crushers.clinic_management.exception.UserNotFoundException;
 import com.coder_crushers.clinic_management.mapper.EntityToDTOMapper;
 import com.coder_crushers.clinic_management.model.MedicalHistory;
 import com.coder_crushers.clinic_management.model.Patient;
-import com.coder_crushers.clinic_management.repository.AppointmentRepository;
 import com.coder_crushers.clinic_management.repository.MedicalHistoryRepository;
 import com.coder_crushers.clinic_management.repository.PatientRepo;
-import com.coder_crushers.clinic_management.response.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +26,6 @@ public class PatientService {
     public PatientService(PatientRepo patientRepo, MedicalHistoryRepository medicalHistoryRepository) {
         this.patientRepo = patientRepo;
         this.medicalHistoryRepository = medicalHistoryRepository;
-
     }
 
     public PatientDTO getUserById(String uid) {

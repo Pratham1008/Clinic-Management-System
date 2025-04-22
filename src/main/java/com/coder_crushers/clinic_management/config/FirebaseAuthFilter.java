@@ -29,7 +29,6 @@ public class FirebaseAuthFilter extends OncePerRequestFilter {
 
         String path = request.getRequestURI();
 
-        // Allow unauthenticated access to auth endpoints
         if (path.startsWith("/api/v1/auth")) {
             filterChain.doFilter(request, response);
             return;
@@ -48,10 +47,6 @@ public class FirebaseAuthFilter extends OncePerRequestFilter {
             String idToken = header.substring(7);
             try {
                 FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(idToken);
-
-                request.setAttribute("firebaseUid", decodedToken.getUid());
-                request.setAttribute("firebaseEmail", decodedToken.getEmail());
-                request.setAttribute("firebaseToken", decodedToken);
 
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
