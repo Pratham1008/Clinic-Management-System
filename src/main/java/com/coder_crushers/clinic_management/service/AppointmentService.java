@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.Lock;
@@ -37,8 +38,8 @@ public class AppointmentService {
     private final ConcurrentLinkedQueue<Appointment> clinicQueue = new ConcurrentLinkedQueue<>();
 
     private static final LocalTime CLINIC_OPEN_TIME = LocalTime.of(9, 0);
-    private static final LocalTime CLINIC_CLOSE_TIME = LocalTime.of(21, 0);
-    private static final ZoneId ASIA_KOLKATA_ZONE = ZoneId.of("Asia/Kolkata"); // ✅ Timezone
+    private static final LocalTime CLINIC_CLOSE_TIME = LocalTime.of(15, 0);
+    private static final ZoneId ASIA_KOLKATA_ZONE = ZoneId.of("Asia/Kolkata");
 
     private boolean canBookAppointments = true;
     private final double averageConsultationTime = 15;
@@ -63,7 +64,7 @@ public class AppointmentService {
 
             if (appointmentTime.isBefore(CLINIC_OPEN_TIME) || appointmentTime.isAfter(CLINIC_CLOSE_TIME)) {
                 logger.warn("Attempted booking outside clinic hours: {}", appointmentTime);
-                return new ApiResponse("Clinic is only open from 9 AM to 9 PM.", null);
+                return new ApiResponse("Clinic is only open from 9 AM to 3 PM.", null);
             }
 
             if (!hasEnoughTimeBeforeClosing(appointmentBookingZoned.toLocalDateTime())) {
@@ -96,8 +97,9 @@ public class AppointmentService {
 
             NotificationService notificationService = new NotificationService();
             Patient patient = patientRepo.findById(appointmentRequest.getPatientId()).orElse(null);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy, hh:mm a");
             assert patient != null;
-            notificationService.sendNotification("Appointment Booked","Appontment Time is "+ calculatedAppointmentTime,patient.getFcmToken());
+            notificationService.sendNotification("Appointment Booked","Appontment Time is "+ calculatedAppointmentTime.format(formatter),patient.getFcmToken());
 
             return new ApiResponse("Appointment booked successfully!", EntityToDTOMapper.toAppointmentDTO(appointment));
 
@@ -111,7 +113,7 @@ public class AppointmentService {
 
     private Appointment createAppointment(AppointmentRequest appointmentRequest) {
         Appointment appointment = new Appointment();
-        Doctor doctor = doctorRepository.findById(3L).orElse(null);
+        Doctor doctor = doctorRepository.findById(2L).orElse(null);
         Patient patient = patientRepo.findById(appointmentRequest.getPatientId()).orElse(null);
         appointment.setPatient(patient);
         appointment.setDoctor(doctor);
@@ -223,6 +225,11 @@ public class AppointmentService {
                 zonedStart.toLocalDateTime(),
                 zonedEnd.toLocalDateTime()
         );
+        return EntityToDTOMapper.appointmentDTOList(appointments);
+    }
+
+    public List<AppointmentDTO> getAppointmentsByPatientId(Long patientId) {
+        List<Appointment> appointments = appointmentRepository.findAllByPatientId(patientId);
         return EntityToDTOMapper.appointmentDTOList(appointments);
     }
 }

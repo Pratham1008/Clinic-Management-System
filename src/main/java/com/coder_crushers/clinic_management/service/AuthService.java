@@ -15,7 +15,7 @@ public class AuthService {
    private  final PatientRepo patientRepo;
 
 
-    public ApiResponse registerUser(User user) {
+    public ApiResponse registerUser(Patient user) {
        Patient patient = new Patient();
 
 
@@ -23,6 +23,8 @@ public class AuthService {
        patient.setName(user.getName());
        patient.setMobileNo(user.getMobileNo());
        patient.setRole(Role.PATIENT);
+//       patient.setAllergies(user.getAllergies());
+//       patient.setOtherConditions(user.getOtherConditions());
 
        patient.setFirebaseUid(user.getFirebaseUid());
        patient.setFcmToken(user.getFcmToken());
@@ -30,5 +32,14 @@ public class AuthService {
        patientRepo.save(patient);
 
        return new ApiResponse("Successfully registered", null);
+    }
+
+    public ApiResponse loginUser(User user) {
+       Patient patient = patientRepo.findByEmail(user.getEmail());
+       if (patient == null) {
+          return new ApiResponse("Invalid email or password", null);
+       }
+       patient.setFcmToken(user.getFcmToken());
+       return new ApiResponse("Successfully logged in", patient);
     }
 }

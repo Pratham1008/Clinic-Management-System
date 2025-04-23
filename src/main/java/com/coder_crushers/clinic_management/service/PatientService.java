@@ -1,11 +1,14 @@
 package com.coder_crushers.clinic_management.service;
 
+import com.coder_crushers.clinic_management.dto.DoctorDTO;
 import com.coder_crushers.clinic_management.dto.MedicalCondition;
 import com.coder_crushers.clinic_management.dto.MedicalHistoryDTO;
 import com.coder_crushers.clinic_management.dto.PatientDTO;
 import com.coder_crushers.clinic_management.mapper.EntityToDTOMapper;
+import com.coder_crushers.clinic_management.model.Doctor;
 import com.coder_crushers.clinic_management.model.MedicalHistory;
 import com.coder_crushers.clinic_management.model.Patient;
+import com.coder_crushers.clinic_management.repository.DoctorRepository;
 import com.coder_crushers.clinic_management.repository.MedicalHistoryRepository;
 import com.coder_crushers.clinic_management.repository.PatientRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,13 +22,14 @@ public class PatientService {
 
     private final PatientRepo patientRepo;
     private final MedicalHistoryRepository medicalHistoryRepository;
-
+    private final DoctorRepository doctorRepository;
 
 
     @Autowired
-    public PatientService(PatientRepo patientRepo, MedicalHistoryRepository medicalHistoryRepository) {
+    public PatientService(PatientRepo patientRepo, MedicalHistoryRepository medicalHistoryRepository, DoctorRepository doctorRepository) {
         this.patientRepo = patientRepo;
         this.medicalHistoryRepository = medicalHistoryRepository;
+        this.doctorRepository = doctorRepository;
     }
 
     public PatientDTO getUserById(String uid) {
@@ -44,9 +48,9 @@ public class PatientService {
         return  EntityToDTOMapper.toMedicalConditionDTO(patient);
     }
 
-    public PatientDTO getUserByEmail(String email) {
-        Patient patient = patientRepo.findByEmail(email);
-        return EntityToDTOMapper.toPatientDTO(patient);
+    public DoctorDTO getDoctorById() {
+        Doctor patient = doctorRepository.findById(2L).orElseThrow(()->new UsernameNotFoundException("user not found"));
+        return EntityToDTOMapper.toDoctorDTO(patient);
     }
 
     public List<MedicalHistoryDTO> findByPatientId(Long id) {

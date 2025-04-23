@@ -1,8 +1,6 @@
 package com.coder_crushers.clinic_management.controller;
 
-import com.coder_crushers.clinic_management.dto.AppointmentRequest;
-import com.coder_crushers.clinic_management.dto.MedicalHistoryDTO;
-import com.coder_crushers.clinic_management.dto.PatientDTO;
+import com.coder_crushers.clinic_management.dto.*;
 import com.coder_crushers.clinic_management.response.ApiResponse;
 import com.coder_crushers.clinic_management.service.AppointmentService;
 import com.coder_crushers.clinic_management.service.PatientService;
@@ -42,7 +40,15 @@ public class PatientController {
     public ResponseEntity<ApiResponse> bookAppointment(@RequestBody AppointmentRequest appointmentRequest)
     {
         ApiResponse apiResponse = appointmentService.bookAppointment(appointmentRequest);
-        return ResponseEntity.ok(new ApiResponse("success",apiResponse));
+        if(apiResponse.getData() == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiResponse);
+        }
+        return ResponseEntity.ok(appointmentService.bookAppointment(appointmentRequest));
+    }
+
+    @GetMapping("/doctor")
+    public ResponseEntity<DoctorDTO> getDoctorById(){
+        return ResponseEntity.ok(patientService.getDoctorById());
     }
 
     @PutMapping("/cancel-app/{id}")
@@ -65,5 +71,9 @@ public class PatientController {
 
     }
 
+    @GetMapping("/appointments/{id}")
+    public ResponseEntity<List<AppointmentDTO>> getAppointmentsByPatientId(@PathVariable Long id){
+        return ResponseEntity.ok(appointmentService.getAppointmentsByPatientId(id));
+    }
 
 }

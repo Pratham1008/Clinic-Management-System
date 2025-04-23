@@ -41,7 +41,6 @@ public class FirebaseAuthFilter extends OncePerRequestFilter {
         }
 
         String header = request.getHeader("Authorization");
-        System.out.println(header);
 
         if (header != null && header.startsWith("Bearer ")) {
             String idToken = header.substring(7);

@@ -13,5 +13,5 @@ public class AppointmentDTO {
     private Long patientId;
     private Long doctorId;
     private LocalDateTime appointmentTime;
-    private AppointmentStatus status; // Pending, Confirmed, Cancelled
+    private AppointmentStatus status;
 }
