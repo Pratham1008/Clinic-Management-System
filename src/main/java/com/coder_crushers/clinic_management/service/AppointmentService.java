@@ -171,6 +171,8 @@ public class AppointmentService {
             appointmentRepository.save(appointment);
 
             logger.info("Appointment with ID {} cancelled successfully.", id);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy, hh:mm a");
+            new NotificationService().sendNotification("Appointment Canceled", "Your Appointment for" + appointment.getAppointmentTime().format(formatter) + "is cancelled", appointment.getPatient().getFcmToken());
             return "Appointment cancelled successfully.";
         } catch (Exception e) {
             logger.error("Error cancelling appointment: {}", e.getMessage());
