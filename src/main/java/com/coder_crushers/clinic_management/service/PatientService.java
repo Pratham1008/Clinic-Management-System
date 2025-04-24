@@ -49,7 +49,7 @@ public class PatientService {
     }
 
     public DoctorDTO getDoctorById() {
-        Doctor patient = doctorRepository.findById(2L).orElseThrow(()->new UsernameNotFoundException("user not found"));
+        Doctor patient = doctorRepository.findById(1L).orElseThrow(()->new UsernameNotFoundException("user not found"));
         return EntityToDTOMapper.toDoctorDTO(patient);
     }
 

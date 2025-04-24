@@ -69,6 +69,7 @@ public class ReceptionistController {
         return ResponseEntity.ok(new ApiResponse("success",appointmentDTOList));
     }
 
+    @PostMapping("/history")
     public ResponseEntity<ApiResponse>addMedHist(@RequestBody MedicalHistoryDTO medicalHistoryDTO){
         receptionistService.addMedHist(medicalHistoryDTO);
         return ResponseEntity.ok(new ApiResponse("success",null));
