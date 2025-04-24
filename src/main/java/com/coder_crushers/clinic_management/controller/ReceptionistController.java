@@ -75,4 +75,9 @@ public class ReceptionistController {
         return ResponseEntity.ok(new ApiResponse("success",null));
     }
 
+    @GetMapping("/all-app")
+    public ResponseEntity<ApiResponse> getAllAppointment(){
+        return ResponseEntity.ok(new ApiResponse("success",receptionistService.getAllAppointments()));
+    }
+
 }

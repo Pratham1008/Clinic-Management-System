@@ -1,24 +1,24 @@
 package com.coder_crushers.clinic_management.service;
 
 import com.coder_crushers.clinic_management.dto.MedicalHistoryDTO;
+import com.coder_crushers.clinic_management.model.Appointment;
 import com.coder_crushers.clinic_management.model.MedicalHistory;
 import com.coder_crushers.clinic_management.model.Patient;
+import com.coder_crushers.clinic_management.repository.AppointmentRepository;
 import com.coder_crushers.clinic_management.repository.MedicalHistoryRepository;
 import com.coder_crushers.clinic_management.repository.PatientRepo;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
+@RequiredArgsConstructor
 public class ReceptionistService {
 
     private final MedicalHistoryRepository medicalHistoryRepository;
+    private final AppointmentRepository appointmentRepository;
     private final PatientRepo patientRepo;
-
-    @Autowired
-    public ReceptionistService(MedicalHistoryRepository medicalHistoryRepository, PatientRepo patientRepo) {
-        this.medicalHistoryRepository = medicalHistoryRepository;
-        this.patientRepo = patientRepo;
-    }
 
 
     public void addMedHist(MedicalHistoryDTO medicalHistoryDTO) {
@@ -28,5 +28,9 @@ public class ReceptionistService {
         medicalHistory.setDiagnosis(medicalHistoryDTO.getDiagnosis());
         medicalHistory.setTreatment(medicalHistoryDTO.getPrescribedMedication());
         medicalHistoryRepository.save(medicalHistory);
+    }
+
+    public List<Appointment> getAllAppointments() {
+        return appointmentRepository.findAll();
     }
 }
