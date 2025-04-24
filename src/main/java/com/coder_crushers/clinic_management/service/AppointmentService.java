@@ -14,7 +14,9 @@ import com.coder_crushers.clinic_management.repository.PatientRepo;
 import com.coder_crushers.clinic_management.response.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -70,6 +72,10 @@ public class AppointmentService {
             if (!hasEnoughTimeBeforeClosing(appointmentBookingZoned.toLocalDateTime())) {
                 logger.warn("Insufficient time to book before clinic closes.");
                 return new ApiResponse("Not enough time left before clinic closing.", null);
+            }
+
+            if (appointmentRepository.existsByPatientIdAndStatus(appointmentRequest.getPatientId(), AppointmentStatus.BOOKED)) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Appointment already exists");
             }
 
             LocalDateTime nowInKolkata = ZonedDateTime.now(ASIA_KOLKATA_ZONE).toLocalDateTime();
