@@ -36,6 +36,19 @@ public class PatientController {
         }
     }
 
+    @GetMapping("/user-id/{id}")
+    public ResponseEntity<ApiResponse>getPatientById(@PathVariable Long id)
+    {
+        try {
+            PatientDTO patientDTO = patientService.getUserViaID(id);
+            return ResponseEntity.ok(new ApiResponse("user found",patientDTO));
+        }catch (Exception e)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse("Data not found",null));
+        }
+    }
+
+
     @PostMapping("/book-app")
     public ResponseEntity<ApiResponse> bookAppointment(@RequestBody AppointmentRequest appointmentRequest)
     {

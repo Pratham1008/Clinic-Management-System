@@ -40,7 +40,7 @@ public class AppointmentService {
     private final ConcurrentLinkedQueue<Appointment> clinicQueue = new ConcurrentLinkedQueue<>();
 
     private static final LocalTime CLINIC_OPEN_TIME = LocalTime.of(9, 0);
-    private static final LocalTime CLINIC_CLOSE_TIME = LocalTime.of(15, 0);
+    private static final LocalTime CLINIC_CLOSE_TIME = LocalTime.of(20, 0);
     private static final ZoneId ASIA_KOLKATA_ZONE = ZoneId.of("Asia/Kolkata");
 
     private boolean canBookAppointments = true;
@@ -238,6 +238,18 @@ public class AppointmentService {
 
     public List<AppointmentDTO> getAppointmentsByPatientId(Long patientId) {
         List<Appointment> appointments = appointmentRepository.findAllByPatientId(patientId);
+        return EntityToDTOMapper.appointmentDTOList(appointments);
+    }
+
+    public List<AppointmentDTO> getAppointmentsForDate(LocalDate date) {
+        ZonedDateTime zonedStart = date.atStartOfDay(ASIA_KOLKATA_ZONE);
+        ZonedDateTime zonedEnd = date.atTime(23, 59, 59, 999_999_999).atZone(ASIA_KOLKATA_ZONE);
+
+        List<Appointment> appointments = appointmentRepository.findByStatusAndAppointmentTimeBetween(
+                AppointmentStatus.BOOKED,
+                zonedStart.toLocalDateTime(),
+                zonedEnd.toLocalDateTime()
+        );
         return EntityToDTOMapper.appointmentDTOList(appointments);
     }
 }

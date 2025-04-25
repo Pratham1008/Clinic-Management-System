@@ -69,6 +69,7 @@ public class EntityToDTOMapper {
 
     public static MedicalHistoryDTO toMedicalHistoryDTO(MedicalHistory history) {
         MedicalHistoryDTO dto = new MedicalHistoryDTO();
+        dto.setPatientID(history.getPatient().getId());
         dto.setId(history.getId());
         dto.setDate(history.getVisitDate());
         dto.setDiagnosis(history.getDiagnosis());

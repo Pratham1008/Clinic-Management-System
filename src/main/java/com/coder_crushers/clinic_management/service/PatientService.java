@@ -57,4 +57,9 @@ public class PatientService {
         List<MedicalHistory> medicalHistoryList = medicalHistoryRepository.findByPatientId(id);
         return EntityToDTOMapper.toMedicalHistoryDTOList(medicalHistoryList);
     }
+
+    public PatientDTO getUserViaID(Long id) {
+        Patient patient=patientRepo.findById(id).orElseThrow(()->new UsernameNotFoundException("user not found"));
+        return EntityToDTOMapper.toPatientDTO(patient);
+    }
 }

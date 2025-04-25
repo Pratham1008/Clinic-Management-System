@@ -10,6 +10,7 @@ import com.coder_crushers.clinic_management.repository.PatientRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -27,6 +28,7 @@ public class ReceptionistService {
         medicalHistory.setPatient(patient);
         medicalHistory.setDiagnosis(medicalHistoryDTO.getDiagnosis());
         medicalHistory.setTreatment(medicalHistoryDTO.getPrescribedMedication());
+        medicalHistory.setVisitDate(LocalDate.now());
         medicalHistoryRepository.save(medicalHistory);
     }
 
