@@ -27,10 +27,6 @@ A full-stack **patient-doctor portal** built with **Flutter** and **Spring Boot*
 - Docker  
 - Render (for deployment)
 
-## 📸 Screenshots
-
-*(Add screenshots of login, dashboard, booking page, etc.)*
-
 ## 📦 Installation
 
 ### Backend
