@@ -32,6 +32,6 @@ A full-stack **patient-doctor portal** built with **Flutter** and **Spring Boot*
 ### Backend
 
 ```bash
-cd backend
+cd Clinic-Management-System
 ./mvnw clean install
 ./mvnw spring-boot:run
